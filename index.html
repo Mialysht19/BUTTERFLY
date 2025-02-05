@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Butterfly Puzzle</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        .puzzle-container {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            width: 320px;
+            margin: auto;
+        }
+        .piece {
+            width: 100px;
+            height: 100px;
+            background-size: 300px 300px;
+            border: 1px solid #000;
+            cursor: grab;
+        }
+        .slot {
+            width: 100px;
+            height: 100px;
+            border: 2px dashed #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Butterfly Puzzle</h1>
+    <p>Seret dan lepas kepingan ke tempat yang betul!</p>
+    <div class="puzzle-container" id="slots"></div>
+    <div class="puzzle-container" id="pieces"></div>
+    
+    <script>
+        const pieces = [];
+        const slots = document.getElementById("slots");
+        const piecesContainer = document.getElementById("pieces");
+        
+        for (let i = 0; i < 9; i++) {
+            let slot = document.createElement("div");
+            slot.classList.add("slot");
+            slot.dataset.index = i;
+            slots.appendChild(slot);
+
+            let piece = document.createElement("div");
+            piece.classList.add("piece");
+            piece.style.backgroundImage = "url('butterfly.jpg')";
+            piece.style.backgroundPosition = `-${(i % 3) * 100}px -${Math.floor(i / 3) * 100}px`;
+            piece.draggable = true;
+            piece.dataset.index = i;
+            pieces.push(piece);
+        }
+
+        pieces.sort(() => Math.random() - 0.5);
+        pieces.forEach(piece => piecesContainer.appendChild(piece));
+
+        let draggedPiece = null;
+
+        document.querySelectorAll(".piece").forEach(piece => {
+            piece.addEventListener("dragstart", (e) => {
+                draggedPiece = e.target;
+            });
+        });
+
+        document.querySelectorAll(".slot").forEach(slot => {
+            slot.addEventListener("dragover", (e) => {
+                e.preventDefault();
+            });
+            slot.addEventListener("drop", (e) => {
+                if (!slot.hasChildNodes() && draggedPiece) {
+                    slot.appendChild(draggedPiece);
+                    if (checkWin()) {
+                        alert("Tahniah! Anda telah menyusun puzzle dengan betul!");
+                    }
+                }
+            });
+        });
+
+        function checkWin() {
+            return [...slots.children].every((slot, index) => {
+                return slot.firstChild && parseInt(slot.firstChild.dataset.index) === index;
+            });
+        }
+    </script>
+</body>
+</html>
